@@ -133,7 +133,7 @@ static struct mm_region imx8m_mem_map[] = {
 		/* DRAM1 */
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = PHYS_SDRAM_SIZE,
+		.size = 0xC0000000UL,//.size = PHYS_SDRAM_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #ifdef CONFIG_IMX_TRUSTY_OS
 			 PTE_BLOCK_INNER_SHARE
@@ -145,7 +145,7 @@ static struct mm_region imx8m_mem_map[] = {
 		/* DRAM2 */
 		.virt = 0x100000000UL,
 		.phys = 0x100000000UL,
-		.size = PHYS_SDRAM_2_SIZE,
+		.size = 0x040000000UL,//.size = PHYS_SDRAM_2_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #ifdef CONFIG_IMX_TRUSTY_OS
 			 PTE_BLOCK_INNER_SHARE
@@ -197,6 +197,7 @@ void enable_caches(void)
 	dcache_enable();
 }
 
+#ifndef CONFIG_IMX8M_BOARD_INIT_DRAM
 __weak int board_phys_sdram_size(phys_size_t *size)
 {
 	if (!size)
@@ -282,6 +283,7 @@ phys_size_t get_effective_memsize(void)
 	return gd->ram_size;
 #endif
 }
+#endif
 
 static u32 get_cpu_variant_type(u32 type)
 {
@@ -738,7 +740,7 @@ static int check_mipi_dsi_nodes(void *blob)
 	nodeoff = fdt_path_offset(blob, lcdif_path[i]);
 	if (nodeoff < 0 || !fdtdec_get_is_enabled(blob, nodeoff)) {
 		/* If can't find lcdif node or lcdif node is disabled, then disable all mipi dsi,
-		    since they only can input from DCSS */
+			since they only can input from DCSS */
 		return disable_mipi_dsi_nodes(blob);
 	}
 
@@ -749,7 +751,7 @@ static int check_mipi_dsi_nodes(void *blob)
 	nodeoff = fdt_path_offset(blob, lcdif_ep_path[i]);
 	if (nodeoff < 0) {
 		/* If can't find lcdif endpoint, then disable all mipi dsi,
-		    since they only can input from DCSS */
+			since they only can input from DCSS */
 		return disable_mipi_dsi_nodes(blob);
 	} else {
 		int lookup_node;
@@ -938,12 +940,12 @@ usb_modify_speed:
 			rc = fdt_delprop(blob, nodeoff, "cpu-idle-states");
 			if (rc) {
 				printf("Unable to update property %s:%s, err=%s\n",
-				       nodes_path[i], "status", fdt_strerror(rc));
+					   nodes_path[i], "status", fdt_strerror(rc));
 				return rc;
 			}
 
 			printf("Remove %s:%s\n", nodes_path[i],
-			       "cpu-idle-states");
+				   "cpu-idle-states");
 		}
 	}
 
@@ -1033,7 +1035,7 @@ static void acquire_buildinfo(void)
 	}
 
 	printf("\n BuildInfo:\n  - ATF %s\n  - %s\n\n", (char *)&atf_commit,
-	       U_BOOT_VERSION);
+		   U_BOOT_VERSION);
 }
 
 int arch_misc_init(void)

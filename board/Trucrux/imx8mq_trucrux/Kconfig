@@ -1,0 +1,14 @@
+if TARGET_IMX8MQ_TRUCRUX
+
+config SYS_BOARD
+	default "imx8mq_trucrux"
+
+config SYS_VENDOR
+	default "Trucrux"
+
+config SYS_CONFIG_NAME
+	default "imx8mq_trucrux"
+
+source "board/freescale/common/Kconfig"
+
+endif
