@@ -16,21 +16,22 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define IMEM_LEN 32768 /* byte */
-#define DMEM_LEN 16384 /* byte */
-#define IMEM_2D_OFFSET	49152
+#define DMEM_LEN 4096  /* byte */
+#define IMEM_2D_OFFSET 36864
+
 
 #define IMEM_OFFSET_ADDR 0x00050000
 #define DMEM_OFFSET_ADDR 0x00054000
 #define DDR_TRAIN_CODE_BASE_ADDR IP2APB_DDRPHY_IPS_BASE_ADDR(0)
 
 /* We need PHY iMEM PHY is 32KB padded */
-void ddr_load_train_firmware(enum fw_type type)
+void ddr_load_train_firmware(enum fw_type type, unsigned int start_offset)
 {
 	u32 tmp32, i;
 	u32 error = 0;
 	unsigned long pr_to32, pr_from32;
 	unsigned long fw_offset = type ? IMEM_2D_OFFSET : 0;
-	unsigned long imem_start = (unsigned long)&_end + fw_offset;
+	unsigned long imem_start = (unsigned long)&_end + start_offset + fw_offset;
 	unsigned long dmem_start;
 
 #ifdef CONFIG_SPL_OF_CONTROL

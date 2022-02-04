@@ -133,7 +133,7 @@ static struct mm_region imx8m_mem_map[] = {
 		/* DRAM1 */
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = PHYS_SDRAM_SIZE,
+		.size = 0xC0000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #ifdef CONFIG_IMX_TRUSTY_OS
 			 PTE_BLOCK_INNER_SHARE
@@ -145,7 +145,7 @@ static struct mm_region imx8m_mem_map[] = {
 		/* DRAM2 */
 		.virt = 0x100000000UL,
 		.phys = 0x100000000UL,
-		.size = PHYS_SDRAM_2_SIZE,
+		.size = 0x040000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #ifdef CONFIG_IMX_TRUSTY_OS
 			 PTE_BLOCK_INNER_SHARE
@@ -197,6 +197,7 @@ void enable_caches(void)
 	dcache_enable();
 }
 
+#ifndef CONFIG_IMX8M_BOARD_INIT_DRAM
 __weak int board_phys_sdram_size(phys_size_t *size)
 {
 	if (!size)
@@ -282,6 +283,7 @@ phys_size_t get_effective_memsize(void)
 	return gd->ram_size;
 #endif
 }
+#endif
 
 static u32 get_cpu_variant_type(u32 type)
 {
