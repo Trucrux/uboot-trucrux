@@ -136,6 +136,14 @@ config TARGET_IMX8MN_DDR4_AB2
 	select SUPPORT_SPL
 	select IMX8M_DDR4
 
+config TARGET_IMX8MM_TRUX
+	bool "imx8mm_trux"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_DDR4
+	select IMX8M_LPDDR4
+	select IMX8M_BOARD_INIT_DRAM	
+
 config TARGET_IMX8MQ_TRUX
 	bool "imx8mq_trux"
 	select IMX8MQ
@@ -160,5 +168,6 @@ source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
 source "board/trucrux/imx8mq_trux/Kconfig"
+source "board/trucrux/imx8mm_trux/Kconfig"
 
 endif
