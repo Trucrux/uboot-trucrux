@@ -317,6 +317,8 @@ int power_init_board(void)
 
 		pmic_reg_write(p, BD71837_LDO5_VOLT, 0x00); //0xc0);
 
+		pmic_reg_write(p, BD71837_BUCK8_CTRL, 0x03);
+
 		pmic_reg_write(p, BD71837_REGLOCK, 0x11);
 
 	return 0;
