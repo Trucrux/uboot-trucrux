@@ -129,14 +129,9 @@ static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC2_BASE_ADDR, 0, 4},
 };
 
-/******************** added by Aniket***********************/
-
-
-
 static const char bd71837_name[] = "BD71837";
 int power_bd71837_init (unsigned char bus) {
 		struct pmic *p = pmic_alloc();
-	printf("Trunexa: inside power_bd71837_init\n");
 		if (!p) {
 				printf("%s: POWER allocation error!\n", __func__);
 				return -ENOMEM;
@@ -153,11 +148,6 @@ int power_bd71837_init (unsigned char bus) {
 
 		return 0;
 }
-
-
-/************************************************************/
-
-
 
 int board_mmc_init(bd_t *bis)
 {
@@ -255,49 +245,6 @@ int set_vdd_regulator(int bus, char *name)
 
 int power_init_board(void)
 {
-/*
-	struct pmic *p;
-	int ret;
-	unsigned int reg;
-
-	ret = power_pfuze100_init(PMIC_I2C_BUS);
-	if (ret)
-		return -ENODEV;
-
-	p = pmic_get("PFUZE100");
-	ret = pmic_probe(p);
-	if (ret)
-		return -ENODEV;
-
-	pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
-
-	pmic_reg_read(p, PFUZE100_SW3AVOL, &reg);
-	if ((reg & 0x3f) != 0x18) {
-		reg &= ~0x3f;
-		reg |= 0x18;
-		pmic_reg_write(p, PFUZE100_SW3AVOL, reg);
-	}
-
-	ret = pfuze_mode_init(p, APS_PFM);
-	if (ret < 0)
-		return ret;
-
-	// set SW3A standby mode to off
-	pmic_reg_read(p, PFUZE100_SW3AMODE, &reg);
-	reg &= ~0xf;
-	reg |= APS_OFF;
-	pmic_reg_write(p, PFUZE100_SW3AMODE, reg);
-
-	set_vdd_regulator(VDD_ARM_I2C_BUS, "VDD_ARM");
-	set_vdd_regulator(VDD_SOC_I2C_BUS, "VDD_SOC");
-
-	return 0;
-*/
-
-/***********added by Aniket*****************/
-
-
 	struct pmic *p;
 		int ret;
 		ret = power_bd71837_init(PMIC_I2C_BUS);
@@ -323,7 +270,6 @@ int power_init_board(void)
 
 	return 0;
 
-/**************************************************/
 }
 #endif
 
