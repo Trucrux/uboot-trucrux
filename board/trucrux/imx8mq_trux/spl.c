@@ -245,31 +245,39 @@ int set_vdd_regulator(int bus, char *name)
 
 int power_init_board(void)
 {
-	struct pmic *p;
-	int ret;
-	printf("Trunexa: inside power_init_board\n");
-	ret = power_bd71837_init(PMIC_I2C_BUS);
-	if (ret)
-		printf("power init failed");
+        struct pmic *p;
+                int ret;
+                ret = power_bd71837_init(PMIC_I2C_BUS);
+                if (ret)
+                        printf("power init failed\n");
+                else
+                        printf("PMIC: BD71837 Found\n");
 
-	p = pmic_get("BD71837");
-	pmic_probe(p);
+                p = pmic_get("BD71837");
+                pmic_probe(p);
 
-	pmic_reg_write(p, BD71837_PWRONCONFIG1, 0x0);
+                /* decrease RESET key long push time from the default 10s to 10ms */
+                pmic_reg_write(p, BD71837_PWRONCONFIG1, 0x0);
 
-	pmic_reg_write(p, BD71837_REGLOCK, 0x1);
+                /* unlock the PMIC regs */
+                pmic_reg_write(p, BD71837_REGLOCK, 0x1);
 
-	pmic_reg_write(p, BD71837_BUCK1_VOLT_RUN, 0x14);  //0x0f);
+                /* increase VDD_SOC to typical value 0.85v before first DRAM access */
+                pmic_reg_write(p, BD71837_BUCK1_VOLT_RUN, 0x0f);
 
-	pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x03); //0x83);
+                /* increase VDD_DRAM to 0.975v for 3Ghz DDR */
+                pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x83);
 
-	pmic_reg_write(p, BD71837_LDO5_VOLT, 0x00); //0xc0);
+                /* Enabled NVCC_DRAM */
+                pmic_reg_write(p, BD71837_BUCK8_CTRL, 0x03);
 
-	pmic_reg_write(p, BD71837_REGLOCK, 0x11);
+                /* Enable LDO5 - PHY supply to 1.8V */
+                pmic_reg_write(p, BD71837_LDO5_VOLT, 0xc0);
 
-	printf("Trunexa: inside power_init_board before return\n");
+                /* lock the PMIC regs */
+                pmic_reg_write(p, BD71837_REGLOCK, 0x11);
 
-	return 0;
+                return 0;
 
 }
 #endif
