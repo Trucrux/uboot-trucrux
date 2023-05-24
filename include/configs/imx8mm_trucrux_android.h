@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX8MM_TRUX_ANDROID_H
-#define __MX8MM_TRUX_ANDROID_H
+#ifndef __MX8MM_TRUCRUX_ANDROID_H
+#define __MX8MM_TRUCRUX_ANDROID_H
 
 #define CONFIG_CMD_READ
 
@@ -84,4 +84,4 @@
 #define PHYS_SDRAM_2_SIZE        0x40000000 /* 1GB */
 #endif
 
-#endif /*__MX8MM_TRUX_ANDROID_H */
+#endif /*__MX8MM_TRUCRUX_ANDROID_H */

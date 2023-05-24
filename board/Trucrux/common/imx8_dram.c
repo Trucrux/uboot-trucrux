@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2019 NXP
- * Copyright Trucrux.
+ * Copyright 2022 Trucrux
  */
 
 #include <common.h>
@@ -302,7 +302,7 @@ u64 get_dram_block_attrs(sc_faddr_t addr_start)
 	}
 
 	if ((addr_start >= PHYS_SDRAM_1 && addr_start <= ((sc_faddr_t)PHYS_SDRAM_1 + phys_sdram_1_size)) ||
-	    (addr_start >= PHYS_SDRAM_2 && addr_start <= ((sc_faddr_t)PHYS_SDRAM_2 + phys_sdram_2_size)))
+		(addr_start >= PHYS_SDRAM_2 && addr_start <= ((sc_faddr_t)PHYS_SDRAM_2 + phys_sdram_2_size)))
 #ifdef CONFIG_IMX_TRUSTY_OS
 		return (PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_INNER_SHARE);
 #else

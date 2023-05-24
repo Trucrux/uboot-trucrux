@@ -3,9 +3,9 @@
 #include <mmc.h>
 
 #ifdef CONFIG_SPLASH_SCREEN
-static int check_env(char *trux, char *val)
+static int check_env(char *var, char *val)
 {
-	char *env_val = env_get(trux);
+	char *env_val = env_get(var);
 
 	if ((env_val != NULL) &&
 		(strcmp(env_val, val) == 0)) {

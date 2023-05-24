@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2018-2019 NXP
- * Copyright Trucrux.
+ * Copyright 2022 Trucrux
  *
  */
 
@@ -26,7 +26,7 @@
 #include <asm/arch/ddr.h>
 
 #include "../common/imx8_eeprom.h"
-#include "imx8mm_trux.h"
+#include "imx8mm_trucrux.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -101,7 +101,7 @@ static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IMX8MM_PAD_SD2_DATA3_USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const usdhc2_pwr_pads_trux[] = {
+static iomux_v3_cfg_t const usdhc2_pwr_pads_dart[] = {
 	IMX8MM_PAD_SD2_RESET_B_GPIO2_IO19 | MUX_PAD_CTRL(USDHC_GPIO_PAD_CTRL),
 };
 
@@ -131,12 +131,14 @@ int board_mmc_init(bd_t *bis)
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			imx_iomux_v3_setup_multiple_pads(usdhc2_pads,
 						ARRAY_SIZE(usdhc2_pads));
-			imx_iomux_v3_setup_multiple_pads(usdhc2_pwr_pads_trux,
-						ARRAY_SIZE(usdhc2_pwr_pads_trux));
-				gpio_request(USDHC2_PWR_GPIO_TRUX, "usdhc2_reset");
-				gpio_direction_output(USDHC2_PWR_GPIO_TRUX, 0);
-				udelay(500);
-				gpio_direction_output(USDHC2_PWR_GPIO_TRUX, 1);
+
+			imx_iomux_v3_setup_multiple_pads(usdhc2_pwr_pads_dart,
+					ARRAY_SIZE(usdhc2_pwr_pads_dart));
+			gpio_request(USDHC2_PWR_GPIO_TRUX, "usdhc2_reset");
+			gpio_direction_output(USDHC2_PWR_GPIO_TRUX, 0);
+			udelay(500);
+			gpio_direction_output(USDHC2_PWR_GPIO_TRUX, 1);
+			
 			break;
 		case 1:
 			init_clk_usdhc(2);
@@ -233,7 +235,7 @@ int board_fit_config_name_match(const char *name)
 {
 	int id = get_board_id();
 
-	if ((id == TRUX_MX8M_MINI) && !strcmp(name, "imx8mm-trux-DVP"))
+	if ((id == TRUX_MX8M_MINI) && !strcmp(name, "imx8mm-trux-dvp"))
 		return 0;
 	else
 		return -1;

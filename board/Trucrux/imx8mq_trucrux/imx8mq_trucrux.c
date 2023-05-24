@@ -1,8 +1,7 @@
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
  * Copyright 2017 NXP
- * Copyright Trucrux.
- *
+ * Copyright 2022 Trucrux
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -28,8 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	TRUX_CARRIER_REV_1,
-	TRUX_CARRIER_REV_2,
-	TRUX_CARRIER_REV_UNDEF,
 };
 
 #define UART_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL1)
@@ -97,8 +94,9 @@ static struct dwc3_device dwc3_device_data = {
 
 ulong board_get_usable_ram_top(ulong total_size)
 {
-        unsigned long top = CONFIG_SYS_SDRAM_BASE + (unsigned long) SZ_1G;
-        return (gd->ram_top > top) ? top : gd->ram_top;
+	unsigned long top = CONFIG_SYS_SDRAM_BASE + (unsigned long) SZ_1G;
+
+	return (gd->ram_top > top) ? top : gd->ram_top;
 }
 
 int usb_gadget_handle_interrupts(void)
@@ -171,54 +169,31 @@ int board_init(void)
 }
 
 #define GPIO_PAD_CTRL (PAD_CTL_PUE | PAD_CTL_DSE1)
-#define TRUX_CARRIER_DETECT_GPIO IMX_GPIO_NR(3, 14)
 
-static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
+/*static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
 	IMX8MQ_PAD_NAND_DQS__GPIO3_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-};
-
-static int trux_detect_trux_carrier_rev(void)
-{
-	static int trux_carrier_rev = TRUX_CARRIER_REV_UNDEF;
-
-	imx_iomux_v3_setup_multiple_pads(trux_carrier_detect_pads,
-				ARRAY_SIZE(trux_carrier_detect_pads));
-
-	gpio_request(TRUX_CARRIER_DETECT_GPIO, "trux_carrier_detect");
-	gpio_direction_input(TRUX_CARRIER_DETECT_GPIO);
-
-	if (gpio_get_value(TRUX_CARRIER_DETECT_GPIO))
-		trux_carrier_rev = TRUX_CARRIER_REV_1;
-	else
-		trux_carrier_rev = TRUX_CARRIER_REV_2;
-
-	return trux_carrier_rev;
-}
+};*/
 
 #define SDRAM_SIZE_STR_LEN 5
 int board_late_init(void)
 {
 	struct trux_eeprom *ep = TRUX_EEPROM_DATA;
 	char sdram_size_str[SDRAM_SIZE_STR_LEN];
-	int carrier_rev = trux_detect_trux_carrier_rev();
+	int carrier_rev = TRUX_CARRIER_REV_1;
 
 #ifdef CONFIG_FEC_MXC
 	trux_setup_mac(ep);
 #endif
 	trux_eeprom_print_prod_info(ep);
 
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#ifdef CONFIG_ENV_TRUX_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "TRUX-MX8M");
 	env_set("board_rev", "iMX8MQ");
-
-	if (carrier_rev == TRUX_CARRIER_REV_2)
-		env_set("carrier_rev", "8m-2.x");
-	else
-		env_set("carrier_rev", "legacy");
+	env_set("carrier_rev", "8MDVP");
 #endif
-
 	snprintf(sdram_size_str, SDRAM_SIZE_STR_LEN, "%d", (int) (gd->ram_size / 1024 / 1024));
 	env_set("sdram_size", sdram_size_str);
+
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
@@ -235,3 +210,4 @@ int is_recovery_key_pressing(void)
 }
 #endif /*CONFIG_ANDROID_RECOVERY*/
 #endif /*CONFIG_FSL_FASTBOOT*/
+

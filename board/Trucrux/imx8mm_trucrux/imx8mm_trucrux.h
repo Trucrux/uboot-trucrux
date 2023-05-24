@@ -7,15 +7,6 @@ enum {
 };
 
 enum {
-	SOM_REV_10,
-	SOM_REV_11,
-	SOM_REV_12,
-	SOM_REV_13,
-	UNKNOWN_REV
-};
-
-enum {
 	TRUX_CARRIER_REV_1,
-	TRUX_CARRIER_REV_2,
-	TRUX_CARRIER_REV_UNDEF,
+
 };

@@ -1,12 +1,12 @@
 #
 # Copyright 2018 NXP
-# Copyright 2019 Variscite Ltd.
+# Copyright 2022 Trucrux
 #
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
 obj-y += ../common/imx8_eeprom.o
-obj-y += imx8mm_trux.o
+obj-y += imx8mm_trucrux.o
 
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o

@@ -1,6 +1,6 @@
 /*
  * Copyright 2018 NXP
- * Copyright Trucrux.
+ * Copyright 2022 Trucrux
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -18,7 +18,7 @@
 #include <dm.h>
 
 #include "../common/imx8_eeprom.h"
-#include "imx8mm_trux.h"
+#include "imx8mm_trucrux.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,7 +44,8 @@ int get_board_id(void)
 	gpio_request(ID_GPIO, "board_id");
 	gpio_direction_input(ID_GPIO);
 
-	board_id = TRUX_MX8M_MINI;
+	board_id = gpio_get_value(ID_GPIO) ? TRUX_MX8M_MINI : TRUX_MX8M_MINI ;
+
 	return board_id;
 }
 #else
@@ -55,7 +56,7 @@ int get_board_id(void)
 	if (board_id != UNKNOWN_BOARD)
 		return board_id;
 
-	if (of_machine_is_compatible("trucrux,imx8mm-trux"))
+	if (of_machine_is_compatible("Trucrux,imx8mm-trucrux"))
 		board_id = TRUX_MX8M_MINI;
 	else
 		board_id = UNKNOWN_BOARD;
@@ -64,21 +65,6 @@ int get_board_id(void)
 }
 #endif
 
-int trux_get_som_rev(struct trux_eeprom *ep)
-{
-	switch (ep->somrev) {
-	case 0:
-		return SOM_REV_10;
-	case 1:
-		return SOM_REV_11;
-	case 2:
-		return SOM_REV_12;
-	case 3:
-		return SOM_REV_13;
-	default:
-		return UNKNOWN_REV;
-	}
-}
 
 #define UART_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL1)
 #define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
@@ -162,28 +148,9 @@ static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
 	IMX8MM_PAD_NAND_DQS_GPIO3_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
 
-static int trux_detect_trux_carrier_rev(void)
-{
-	static int trux_carrier_rev = TRUX_CARRIER_REV_UNDEF;
-
-	imx_iomux_v3_setup_multiple_pads(trux_carrier_detect_pads,
-				ARRAY_SIZE(trux_carrier_detect_pads));
-
-	gpio_request(TRUX_CARRIER_DETECT_GPIO, "trux_carrier_detect");
-	gpio_direction_input(TRUX_CARRIER_DETECT_GPIO);
-
-	if (gpio_get_value(TRUX_CARRIER_DETECT_GPIO))
-		trux_carrier_rev = TRUX_CARRIER_REV_1;
-	else
-		trux_carrier_rev = TRUX_CARRIER_REV_2;
-
-	return trux_carrier_rev;
-}
-
 #define SDRAM_SIZE_STR_LEN 5
 int board_late_init(void)
 {
-	int som_rev;
 	char sdram_size_str[SDRAM_SIZE_STR_LEN];
 	int id = get_board_id();
 	struct trux_eeprom *ep = TRUX_EEPROM_DATA;
@@ -195,50 +162,11 @@ int board_late_init(void)
 #endif
 	trux_eeprom_print_prod_info(ep);
 
-	som_rev = trux_get_som_rev(ep);
-
 	snprintf(sdram_size_str, SDRAM_SIZE_STR_LEN, "%d", (int) (gd->ram_size / 1024 / 1024));
 	env_set("sdram_size", sdram_size_str);
-
-if (id == TRUX_MX8M_MINI) {
-
-		int carrier_rev = trux_detect_trux_carrier_rev();
-
-		env_set("board_name", "TRUX-MX8M-MINI");
-
-		if (carrier_rev == TRUX_CARRIER_REV_2)
-			env_set("carrier_rev", "8mdvp-2.x");
-		else
-			env_set("carrier_rev", "legacy");
-	}
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-	board_late_mmc_env_init();
-#endif
-
+	env_set("board_name", "TRUX-MX8M-MINI");
+	trux_carrier_eeprom_read(CARRIER_EEPROM_BUS_SOM, CARRIER_EEPROM_ADDR, &carrier_eeprom);
+	trux_carrier_eeprom_get_revision(&carrier_eeprom, carrier_rev, sizeof(carrier_rev));
+	env_set("carrier_rev", carrier_rev);
 	return 0;
 }
-
-#ifdef CONFIG_FSL_FASTBOOT
-#ifdef CONFIG_ANDROID_RECOVERY
-
-#define BACK_KEY IMX_GPIO_NR(4, 6)
-#define BACK_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PE)
-
-static iomux_v3_cfg_t const back_pads[] = {
-	IMX8MM_PAD_SAI1_RXD4_GPIO4_IO6 | MUX_PAD_CTRL(BACK_PAD_CTRL),
-};
-
-int is_recovery_key_pressing(void)
-{
-	imx_iomux_v3_setup_multiple_pads(back_pads, ARRAY_SIZE(back_pads));
-	gpio_request(BACK_KEY, "BACK");
-	gpio_direction_input(BACK_KEY);
-	if (gpio_get_value(BACK_KEY) == 0) { /* BACK key is low assert */
-		printf("Recovery key pressed\n");
-		return 1;
-	}
-	return 0;
-}
-#endif /*CONFIG_ANDROID_RECOVERY*/
-#endif /*CONFIG_FSL_FASTBOOT*/

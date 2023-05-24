@@ -4,8 +4,8 @@
  * Copyright Trucrux
  */
 
-#ifndef __IMX8MM_TRUX_H
-#define __IMX8MM_TRUX_H
+#ifndef __IMX8MM_TRUCRUX_H
+#define __IMX8MM_TRUCRUX_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
@@ -256,7 +256,7 @@
 #define CARRIER_EEPROM_ADDR		0x54
 
 #if defined(CONFIG_ANDROID_SUPPORT)
-#include "imx8mm_trux_android.h"
+#include "imx8mm_trucrux_android.h"
 #endif
 
 #endif

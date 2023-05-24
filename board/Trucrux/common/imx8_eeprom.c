@@ -1,6 +1,5 @@
-
 /*
- * Copyright Trucrux.
+ * Copyright 2022 Trucrux
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -64,45 +63,31 @@ int trux_scu_eeprom_read_header(struct trux_eeprom *e)
 #endif /* ARCH_IMX8 */
 
 #ifdef CONFIG_DM_I2C
-static struct udevice *trux_eeprom_init(void)
+int trux_eeprom_read_header(struct trux_eeprom *e)
 {
 	int ret;
-	struct udevice *bus, *dev;
+	struct udevice *bus;
+	struct udevice *dev;
 
 	ret = uclass_get_device_by_seq(UCLASS_I2C, TRUX_EEPROM_I2C_BUS, &bus);
 	if (ret) {
 		debug("%s: No bus %d\n", __func__, TRUX_EEPROM_I2C_BUS);
-		return NULL;
+		return ret;
 	}
 
 	ret = dm_i2c_probe(bus, TRUX_EEPROM_I2C_ADDR, 0, &dev);
 	if (ret) {
-		debug("%s: Can't find device id=0x%x, on bus %d\n",
-			__func__, TRUX_EEPROM_I2C_ADDR, TRUX_EEPROM_I2C_BUS);
-		return NULL;
-	}
-
-	return dev;
-}
-
-int trux_eeprom_read_header(struct trux_eeprom *e)
-{
-	int ret;
-	struct udevice *edev;
-
-	edev = trux_eeprom_init();
-	if (!edev) {
 #ifdef CONFIG_ARCH_IMX8
 		debug("%s: calling SCU to read EEPROM\n", __func__);
 		return trux_scu_eeprom_read_header(e);
 #else
 		debug("%s: I2C EEPROM probe failed\n", __func__);
-		return -1;
+		return ret;
 #endif
 	}
 
 	/* Read EEPROM header to memory */
-	ret = dm_i2c_read(edev, 0, (void *)e, sizeof(*e));
+	ret = dm_i2c_read(dev, 0, (void *)e, sizeof(*e));
 	if (ret) {
 		debug("%s: EEPROM read failed, ret=%d\n", __func__, ret);
 		return ret;
@@ -199,27 +184,27 @@ void trux_eeprom_print_prod_info(struct trux_eeprom *ep)
 	if (ep->version >= 3)
 		memcpy(partnum + sizeof(ep->partnum), ep->partnum2, sizeof(ep->partnum2));
 
-#ifdef CONFIG_TARGET_IMX8MQ_TRUX
-	printf("\nPart number: TRUX-8M-%.*s\n", (int)sizeof(partnum), partnum);
-#elif CONFIG_TARGET_IMX8MM_TRUX
-	if (of_machine_is_compatible("trucrux,imx8mm-trux"))
-		printf("\nPart number: TRUX-8MM-%.*s\n", (int)sizeof(partnum), partnum);
+#ifdef CONFIG_TARGET_IMX8MQ_TRUCRUX
+	printf("\nPart number: VSM-DT8M-%.*s\n", (int)sizeof(partnum), partnum);
+#elif CONFIG_TARGET_IMX8MM_TRUCRUX
+	if (of_machine_is_compatible("trucrux,imx8mm-trucrux"))
+		printf("\nPart number: VSM-DT8MM-%.*s\n", (int)sizeof(partnum), partnum);
 	else
-		printf("\nPart number: TRUX-MX8MM-%.*s\n", (int)sizeof(partnum), partnum);
-#elif CONFIG_TARGET_IMX8MN_TRUX
-	printf("\nPart number: TRUX-MX8MN-%.*s\n", (int)sizeof(partnum), partnum);
-#elif CONFIG_TARGET_IMX8MP_TRUX
-	if (of_machine_is_compatible("trucrux,imx8mp-trux"))
-		printf("\nPart number: TRUX-8MP-%.*s\n", (int)sizeof(partnum), partnum);
+		printf("\nPart number: VSM-MX8MM-%.*s\n", (int)sizeof(partnum), partnum);
+#elif CONFIG_TARGET_IMX8MN_TRUCRUX_SOM
+	printf("\nPart number: VSM-MX8MN-%.*s\n", (int)sizeof(partnum), partnum);
+#elif CONFIG_TARGET_IMX8MP_TRUCRUX
+	if (of_machine_is_compatible("trucrux,imx8mp-trucrux"))
+		printf("\nPart number: VSM-DT8MP-%.*s\n", (int)sizeof(partnum), partnum);
 	else
-		printf("\nPart number: TRUX-MX8MP-%.*s\n", (int)sizeof(partnum), partnum);
-#elif CONFIG_TARGET_IMX8QXP_TRUX
-	printf("\nPart number: TRUX-MX8X-%.*s\n", (int)sizeof(partnum), partnum);
-#elif CONFIG_TARGET_IMX8QM_TRUX
-	if (of_machine_is_compatible("trucrux,imx8qm-trux"))
-		printf("\nPart number: TRUX-SP8-%.*s\n", (int)sizeof(partnum), partnum);
+		printf("\nPart number: VSM-MX8MP-%.*s\n", (int)sizeof(partnum), partnum);
+#elif CONFIG_TARGET_IMX8QXP_TRUCRUX_SOM
+	printf("\nPart number: VSM-MX8X-%.*s\n", (int)sizeof(partnum), partnum);
+#elif CONFIG_TARGET_IMX8QM_TRUCRUX_SOM
+	if (of_machine_is_compatible("trucrux,imx8qm-trux-spear"))
+		printf("\nPart number: VSM-SP8-%.*s\n", (int)sizeof(partnum), partnum);
 	else
-		printf("\nPart number: TRUX-MX8-%.*s\n", (int)sizeof(partnum), partnum);
+		printf("\nPart number: VSM-MX8-%.*s\n", (int)sizeof(partnum), partnum);
 #endif
 
 	printf("Assembly: AS%.*s\n", (int)sizeof(ep->assembly), (char *)ep->assembly);
@@ -264,7 +249,7 @@ static void adjust_dram_table(u8 adj_table_offset, u8 adj_table_size,
 	int i, j = 0;
 	u8 off = adj_table_offset;
 	struct dram_cfg_param adj_table_row;
- 
+
 	/* Iterate over adjustment table */
 	for (i = 0; i < adj_table_size; i++) {
 
@@ -443,6 +428,8 @@ int trux_carrier_eeprom_is_valid(struct trux_carrier_eeprom *ep)
 /* Returns carrier board revision string via 'rev' argument.
  * For legacy carrier board revisions the "legacy" string is returned.
  * For new carrier board revisions the actual carrier revision is returned.
+ * Symphony-Board 1.4 and below are legacy, 1.4a and above are new.
+ * DT8MCustomBoard 1.4 and below are legacy, 2.0 and above are new.
  */
 void trux_carrier_eeprom_get_revision(struct trux_carrier_eeprom *ep, char *rev, size_t size)
 {

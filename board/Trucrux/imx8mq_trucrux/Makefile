@@ -1,10 +1,10 @@
 #
-# Copyright Trucrux
+# Copyright 2022 Trucrux
 #
 # SPDX-License-Identifier:      GPL-2.0+
 #
 
-obj-y += imx8mq_trux.o
+obj-y += imx8mq_trucrux.o
 obj-y += ../common/imx8_eeprom.o
 
 ifdef CONFIG_SPL_BUILD

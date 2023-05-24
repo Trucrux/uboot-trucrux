@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX8MQ_TRUX_ANDROID_H
-#define __MX8MQ_TRUX_ANDROID_H
+#ifndef __MX8MQ_TRUCRUX_ANDROID_H
+#define __MX8MQ_TRUCRUX_ANDROID_H
 
 #define CONFIG_CMD_READ
 
@@ -76,4 +76,4 @@
 #define NS_ARCH_ARM64 1
 #endif
 
-#endif /* __MX8MQ_TRUX_ANDROID_H */
+#endif /* __MX8MQ_TRUCRUX_ANDROID_H */

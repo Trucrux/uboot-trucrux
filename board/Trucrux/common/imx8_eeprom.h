@@ -1,5 +1,5 @@
 /*
- * Copyright Trucrux.
+ * Copyright 2022 Trucrux
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -20,9 +20,10 @@
 #define TRUX_EEPROM_F_WIFI 	(1 << 0)
 #define TRUX_EEPROM_F_ETH 	(1 << 1)
 #define TRUX_EEPROM_F_AUDIO 	(1 << 2)
+#define TRUX_EEPROM_F_LVDS	(1 << 3)
+#define TRUX_EEPROM_F_NAND	(1 << 4)
 #define TRUX_EEPROM_F_MX8M_LVDS	(1 << 3) /* i.MX8MM, i.MX8MN, i.MX8MQ only */
 #define TRUX_EEPROM_F_MX8Q_SOC_ID (1 << 3) /* 0 = i.MX8QM, 1 = i.MX8QP */
-#define TRUX_EEPROM_F_NAND	(1 << 4)
 
 /* SOM storage types */
 enum som_storage {

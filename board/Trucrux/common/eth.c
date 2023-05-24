@@ -34,10 +34,9 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-#if defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMX8MP)
-
 #define CHAR_BIT 8
 
+#ifdef CONFIG_ARCH_IMX8
 static uint64_t mac2int(const uint8_t hwaddr[])
 {
 	int8_t i;
@@ -67,7 +66,7 @@ int trux_setup_mac(struct trux_eeprom *eeprom)
 	int ret;
 	unsigned char enetaddr[6];
 
-#if defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMX8MP)
+#ifdef CONFIG_ARCH_IMX8
 	uint64_t addr;
 	unsigned char enet1addr[6];
 #endif
@@ -85,7 +84,7 @@ int trux_setup_mac(struct trux_eeprom *eeprom)
 
 	eth_env_set_enetaddr("ethaddr", enetaddr);
 
-#if defined(CONFIG_ARCH_IMX8) || defined(CONFIG_IMX8MP)
+#ifdef CONFIG_ARCH_IMX8
 	addr = mac2int(enetaddr);
 	int2mac(addr + 1, enet1addr);
 	eth_env_set_enetaddr("eth1addr", enet1addr);

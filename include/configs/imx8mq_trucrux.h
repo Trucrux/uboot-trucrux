@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __IMX8MQ_TRUX_H
-#define __IMX8MQ_TRUX_H
+#ifndef __IMX8MQ_TRUCRUX_H
+#define __IMX8MQ_TRUCRUX_H
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
@@ -274,7 +274,7 @@
 #endif
 
 #if defined(CONFIG_ANDROID_SUPPORT)
-#include "imx8mq_trux_android.h"
+#include "imx8mq_trucrux_android.h"
 #endif
 
 #endif

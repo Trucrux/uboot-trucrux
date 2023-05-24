@@ -1,6 +1,6 @@
 /*
  * Copyright 2017 NXP
- * Copyright Trucrux.
+ * Copyright 2022 Trucrux
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -132,7 +132,6 @@ static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 static const char bd71837_name[] = "BD71837";
 int power_bd71837_init (unsigned char bus) {
 		struct pmic *p = pmic_alloc();
-	printf("Trunexa: inside power_bd71837_init\n");
 		if (!p) {
 				printf("%s: POWER allocation error!\n", __func__);
 				return -ENOMEM;
@@ -216,21 +215,21 @@ int set_vdd_regulator(int bus, char *name)
 	uint8_t val1, val2;
 
 	/* Probe VDD regulator */
-        if (!((i2c_set_bus_num(bus) == 0) &&
-              (i2c_probe(VDD_I2C_ADDR) == 0))) {
+		if (!((i2c_set_bus_num(bus) == 0) &&
+			  (i2c_probe(VDD_I2C_ADDR) == 0))) {
 		printf("%s: i2c bus failed\n", name);
 		return -1;
-        }
+		}
 
 	/* Read regulator chip ID */
 	if (!((i2c_read(VDD_I2C_ADDR, VDD_CHIP_ID1, 1, &val1, 1) == 0) &&
-	      (i2c_read(VDD_I2C_ADDR, VDD_CHIP_ID2, 1, &val2, 1) == 0) &&
-	      (val1 == val2))) {
+		  (i2c_read(VDD_I2C_ADDR, VDD_CHIP_ID2, 1, &val2, 1) == 0) &&
+		  (val1 == val2))) {
 		printf("%s: chip ID read failed\n", name);
 		return -1;
-        }
+		}
 
-        debug("%s: Chip ID: 0x%.2x\n", name, val1);
+		debug("%s: Chip ID: 0x%.2x\n", name, val1);
 
 	/* Reset temperature alarm */
 	val1 = 0x0;
@@ -243,41 +242,42 @@ int set_vdd_regulator(int bus, char *name)
 	return 0;
 }
 
+
 int power_init_board(void)
 {
-        struct pmic *p;
-                int ret;
-                ret = power_bd71837_init(PMIC_I2C_BUS);
-                if (ret)
-                        printf("power init failed\n");
-                else
-                        printf("PMIC: BD71837 Found\n");
+	struct pmic *p;
+		int ret;
+		ret = power_bd71837_init(PMIC_I2C_BUS);
+		if (ret)
+			printf("power init failed\n");
+		else
+			printf("PMIC: BD71837 Found\n");
 
-                p = pmic_get("BD71837");
-                pmic_probe(p);
+		p = pmic_get("BD71837");
+		pmic_probe(p);
 
-                /* decrease RESET key long push time from the default 10s to 10ms */
-                pmic_reg_write(p, BD71837_PWRONCONFIG1, 0x0);
+		/* decrease RESET key long push time from the default 10s to 10ms */
+		pmic_reg_write(p, BD71837_PWRONCONFIG1, 0x0);
 
-                /* unlock the PMIC regs */
-                pmic_reg_write(p, BD71837_REGLOCK, 0x1);
+		/* unlock the PMIC regs */
+		pmic_reg_write(p, BD71837_REGLOCK, 0x1);
 
-                /* increase VDD_SOC to typical value 0.85v before first DRAM access */
-                pmic_reg_write(p, BD71837_BUCK1_VOLT_RUN, 0x0f);
+		/* increase VDD_SOC to typical value 0.85v before first DRAM access */
+		pmic_reg_write(p, BD71837_BUCK1_VOLT_RUN, 0x0f);
 
-                /* increase VDD_DRAM to 0.975v for 3Ghz DDR */
-                pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x83);
+		/* increase VDD_DRAM to 0.975v for 3Ghz DDR */
+		pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x83);
 
-                /* Enabled NVCC_DRAM */
-                pmic_reg_write(p, BD71837_BUCK8_CTRL, 0x03);
+		/* Enabled NVCC_DRAM */
+		pmic_reg_write(p, BD71837_BUCK8_CTRL, 0x03);
 
-                /* Enable LDO5 - PHY supply to 1.8V */
-                pmic_reg_write(p, BD71837_LDO5_VOLT, 0xc0);
+		/* Enable LDO5 - PHY supply to 1.8V */
+		pmic_reg_write(p, BD71837_LDO5_VOLT, 0xc0);
 
-                /* lock the PMIC regs */
-                pmic_reg_write(p, BD71837_REGLOCK, 0x11);
+		/* lock the PMIC regs */
+		pmic_reg_write(p, BD71837_REGLOCK, 0x11);
 
-                return 0;
+		return 0;
 
 }
 #endif
