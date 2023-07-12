@@ -168,5 +168,10 @@ int board_late_init(void)
 	trux_carrier_eeprom_read(CARRIER_EEPROM_BUS_SOM, CARRIER_EEPROM_ADDR, &carrier_eeprom);
 	trux_carrier_eeprom_get_revision(&carrier_eeprom, carrier_rev, sizeof(carrier_rev));
 	env_set("carrier_rev", carrier_rev);
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+        board_late_mmc_env_init();
+#endif
+
 	return 0;
 }
