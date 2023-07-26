@@ -138,7 +138,7 @@ int board_init(void)
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
 #endif
-
+	setup_wifi();
 	return 0;
 }
 
@@ -147,6 +147,31 @@ int board_init(void)
 static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
 	IMX8MM_PAD_NAND_DQS_GPIO3_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
+
+#define WL_REG_ON_PAD IMX_GPIO_NR(2, 10)
+static iomux_v3_cfg_t const wl_reg_on_pads[] = {
+	IMX8MM_PAD_SD1_RESET_B_GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define BT_ON_PAD IMX_GPIO_NR(2, 6)
+static iomux_v3_cfg_t const bt_on_pads[] = {
+	IMX8MM_PAD_SD1_DATA4_GPIO2_IO6 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void setup_wifi(void)
+{
+	imx_iomux_v3_setup_multiple_pads(wl_reg_on_pads, ARRAY_SIZE(wl_reg_on_pads));
+	imx_iomux_v3_setup_multiple_pads(bt_on_pads, ARRAY_SIZE(bt_on_pads));
+
+	gpio_request(WL_REG_ON_PAD, "wl_reg_on");
+	gpio_direction_output(WL_REG_ON_PAD, 0);
+	gpio_set_value(WL_REG_ON_PAD, 1);
+
+	gpio_request(BT_ON_PAD, "bt_on");
+	gpio_direction_output(BT_ON_PAD, 0);
+	gpio_set_value(BT_ON_PAD, 1);
+
+}
 
 #define SDRAM_SIZE_STR_LEN 5
 int board_late_init(void)
