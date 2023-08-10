@@ -139,6 +139,7 @@ int board_init(void)
 	setup_fec();
 #endif
 
+	setup_touch();
 	return 0;
 }
 
@@ -147,6 +148,31 @@ int board_init(void)
 static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
 	IMX8MM_PAD_NAND_DQS_GPIO3_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
+
+#define TOUCH_IRQ_PAD IMX_GPIO_NR(4, 10)
+static iomux_v3_cfg_t const touch_irq_pads[] = {
+        IMX8MM_PAD_SAI1_TXFS_GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define TOUCH_RST_PAD IMX_GPIO_NR(4, 11)
+static iomux_v3_cfg_t const touch_rst_pads[] = {
+        IMX8MM_PAD_SAI1_TXC_GPIO4_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void setup_touch(void)
+{
+       imx_iomux_v3_setup_multiple_pads(touch_irq_pads, ARRAY_SIZE(touch_irq_pads));
+       imx_iomux_v3_setup_multiple_pads(touch_rst_pads, ARRAY_SIZE(touch_rst_pads));
+
+        gpio_request(TOUCH_IRQ_PAD, "touch_irq");
+        gpio_direction_output(TOUCH_IRQ_PAD, 0);
+        gpio_set_value(TOUCH_IRQ_PAD, 1);
+
+        gpio_request(TOUCH_RST_PAD, "truch_rst");
+        gpio_direction_output(TOUCH_RST_PAD, 0);
+        gpio_set_value(TOUCH_RST_PAD, 1);
+
+}
 
 #define SDRAM_SIZE_STR_LEN 5
 int board_late_init(void)
