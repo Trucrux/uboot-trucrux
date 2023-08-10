@@ -140,6 +140,7 @@ int board_init(void)
 #endif
 
 	setup_touch();
+	setup_wifi();
 	return 0;
 }
 
@@ -159,6 +160,16 @@ static iomux_v3_cfg_t const touch_rst_pads[] = {
         IMX8MM_PAD_SAI1_TXC_GPIO4_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
+#define WL_REG_ON_PAD IMX_GPIO_NR(2, 10)
+static iomux_v3_cfg_t const wl_reg_on_pads[] = {
+       IMX8MM_PAD_SD1_RESET_B_GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define BT_ON_PAD IMX_GPIO_NR(2, 6)
+static iomux_v3_cfg_t const bt_on_pads[] = {
+       IMX8MM_PAD_SD1_DATA4_GPIO2_IO6 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 void setup_touch(void)
 {
        imx_iomux_v3_setup_multiple_pads(touch_irq_pads, ARRAY_SIZE(touch_irq_pads));
@@ -171,6 +182,21 @@ void setup_touch(void)
         gpio_request(TOUCH_RST_PAD, "truch_rst");
         gpio_direction_output(TOUCH_RST_PAD, 0);
         gpio_set_value(TOUCH_RST_PAD, 1);
+
+}
+
+void setup_wifi(void)
+{
+       imx_iomux_v3_setup_multiple_pads(wl_reg_on_pads, ARRAY_SIZE(wl_reg_on_pads));
+       imx_iomux_v3_setup_multiple_pads(bt_on_pads, ARRAY_SIZE(bt_on_pads));
+
+       gpio_request(WL_REG_ON_PAD, "wl_reg_on");
+       gpio_direction_output(WL_REG_ON_PAD, 0);
+       gpio_set_value(WL_REG_ON_PAD, 1);
+
+       gpio_request(BT_ON_PAD, "bt_on");
+       gpio_direction_output(BT_ON_PAD, 0);
+       gpio_set_value(BT_ON_PAD, 1);
 
 }
 
