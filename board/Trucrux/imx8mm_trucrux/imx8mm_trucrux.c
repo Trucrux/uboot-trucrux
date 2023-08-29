@@ -139,6 +139,8 @@ int board_init(void)
 	setup_fec();
 #endif
 
+	setup_touch();
+	setup_wifi();
 	return 0;
 }
 
@@ -147,6 +149,56 @@ int board_init(void)
 static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
 	IMX8MM_PAD_NAND_DQS_GPIO3_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
+
+#define TOUCH_IRQ_PAD IMX_GPIO_NR(4, 10)
+static iomux_v3_cfg_t const touch_irq_pads[] = {
+        IMX8MM_PAD_SAI1_TXFS_GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define TOUCH_RST_PAD IMX_GPIO_NR(4, 11)
+static iomux_v3_cfg_t const touch_rst_pads[] = {
+        IMX8MM_PAD_SAI1_TXC_GPIO4_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define WL_REG_ON_PAD IMX_GPIO_NR(2, 10)
+static iomux_v3_cfg_t const wl_reg_on_pads[] = {
+       IMX8MM_PAD_SD1_RESET_B_GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define BT_ON_PAD IMX_GPIO_NR(2, 6)
+static iomux_v3_cfg_t const bt_on_pads[] = {
+       IMX8MM_PAD_SD1_DATA4_GPIO2_IO6 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void setup_touch(void)
+{
+       imx_iomux_v3_setup_multiple_pads(touch_irq_pads, ARRAY_SIZE(touch_irq_pads));
+       imx_iomux_v3_setup_multiple_pads(touch_rst_pads, ARRAY_SIZE(touch_rst_pads));
+
+        gpio_request(TOUCH_IRQ_PAD, "touch_irq");
+        gpio_direction_output(TOUCH_IRQ_PAD, 0);
+        gpio_set_value(TOUCH_IRQ_PAD, 1);
+
+        gpio_request(TOUCH_RST_PAD, "truch_rst");
+        gpio_direction_output(TOUCH_RST_PAD, 0);
+        gpio_set_value(TOUCH_RST_PAD, 1);
+
+}
+
+void setup_wifi(void)
+{
+       imx_iomux_v3_setup_multiple_pads(wl_reg_on_pads, ARRAY_SIZE(wl_reg_on_pads));
+       imx_iomux_v3_setup_multiple_pads(bt_on_pads, ARRAY_SIZE(bt_on_pads));
+
+       gpio_request(WL_REG_ON_PAD, "wl_reg_on");
+       gpio_direction_output(WL_REG_ON_PAD, 0);
+       gpio_set_value(WL_REG_ON_PAD, 1);
+
+       gpio_request(BT_ON_PAD, "bt_on");
+       gpio_direction_output(BT_ON_PAD, 0);
+       gpio_set_value(BT_ON_PAD, 1);
+
+}
 
 #define SDRAM_SIZE_STR_LEN 5
 int board_late_init(void)
@@ -168,5 +220,18 @@ int board_late_init(void)
 	trux_carrier_eeprom_read(CARRIER_EEPROM_BUS_SOM, CARRIER_EEPROM_ADDR, &carrier_eeprom);
 	trux_carrier_eeprom_get_revision(&carrier_eeprom, carrier_rev, sizeof(carrier_rev));
 	env_set("carrier_rev", carrier_rev);
+#ifdef CONFIG_ENV_IS_IN_MMC
+	board_late_mmc_env_init();
+#endif
 	return 0;
 }
+
+#ifdef CONFIG_FSL_FASTBOOT
+#ifdef CONFIG_ANDROID_RECOVERY
+int is_recovery_key_pressing(void)
+{
+       return 0; /*TODO*/
+}
+#endif /*CONFIG_ANDROID_RECOVERY*/
+#endif /*CONFIG_FSL_FASTBOOT*/
+
