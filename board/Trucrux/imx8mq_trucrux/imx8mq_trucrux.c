@@ -165,10 +165,35 @@ int board_init(void)
 	init_usb_clk();
 #endif
 
+	setup_touch();
 	return 0;
 }
 
 #define GPIO_PAD_CTRL (PAD_CTL_PUE | PAD_CTL_DSE1)
+#define TOUCH_IRQ_PAD IMX_GPIO_NR(1, 14)
+static iomux_v3_cfg_t const touch_irq_pads[] = {
+        IMX8MQ_PAD_GPIO1_IO14__GPIO1_IO14 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define TOUCH_RST_PAD IMX_GPIO_NR(1, 3)
+static iomux_v3_cfg_t const touch_rst_pads[] = {
+        IMX8MQ_PAD_GPIO1_IO03__GPIO1_IO3 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void setup_touch(void)
+{
+       imx_iomux_v3_setup_multiple_pads(touch_irq_pads, ARRAY_SIZE(touch_irq_pads));
+       imx_iomux_v3_setup_multiple_pads(touch_rst_pads, ARRAY_SIZE(touch_rst_pads));
+
+        gpio_request(TOUCH_IRQ_PAD, "touch_irq");
+        gpio_direction_output(TOUCH_IRQ_PAD, 0);
+        gpio_set_value(TOUCH_IRQ_PAD, 1);
+
+        gpio_request(TOUCH_RST_PAD, "touch_rst");
+        gpio_direction_output(TOUCH_RST_PAD, 0);
+        gpio_set_value(TOUCH_RST_PAD, 1);
+
+}
 
 /*static iomux_v3_cfg_t const trux_carrier_detect_pads[] = {
 	IMX8MQ_PAD_NAND_DQS__GPIO3_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
@@ -210,4 +235,3 @@ int is_recovery_key_pressing(void)
 }
 #endif /*CONFIG_ANDROID_RECOVERY*/
 #endif /*CONFIG_FSL_FASTBOOT*/
-
